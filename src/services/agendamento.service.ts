@@ -3,7 +3,7 @@ import type { Agendamento, AgendamentoDTO, AtualizarStatusDTO, RespostaPadrao } 
 
 export const agendamentoService = {
   listarPorData: async (data: string) => {
-    const response = await api.get<RespostaPadrao<Agendamento[]>>(`/Agendamento/data/${data}`);
+    const response = await api.get<RespostaPadrao<Agendamento[]>>(`/Agendamento/ListarPorData/${data}`);
     return response.data.dados || [];
   },
 
@@ -13,7 +13,7 @@ export const agendamentoService = {
   },
 
   atualizarStatus: async (id: number, dados: AtualizarStatusDTO) => {
-    const response = await api.patch<RespostaPadrao<Agendamento>>(`/Agendamento/${id}/status`, dados);
+    const response = await api.patch<RespostaPadrao<Agendamento>>(`/Agendamento/AtualizarStatus/${id}`, dados);
     return response.data.dados;
   }
 };
