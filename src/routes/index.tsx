@@ -1,10 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { FormularioAgendamento } from '../features/agendamento/components/FormularioAgendamento'
 
 export const Route = createFileRoute('/')({
   component: () => (
-    <div>
-         <h2 className="text-2xl font-bold mb-4">Novo Agendamento</h2>
-      <p className="text-zinc-500">formulário.</p>
+    <div className="flex justify-center pt-8">
+      <FormularioAgendamento />
     </div>
   ),
 })
