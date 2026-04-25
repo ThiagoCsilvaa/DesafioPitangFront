@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import 'react-datepicker/dist/react-datepicker.css';
 import { useAgendamentos } from '../hooks/useAgendamento';
@@ -26,13 +27,11 @@ export function ListaAgendamentos() {
   const horariosOrdenados = Object.keys(agendamentosAgrupados).sort();
   const handleConcluirAtendimento = async () => {
     if (!agendamentoSelecionado) return;
-    
     try {
       await agendamentoService.atualizarStatus(agendamentoSelecionado, {
         status: 'Concluído',
         conclusao: conclusaoTexto
       });
-      
       setModalAberto(false);
       recarregar();
     } catch (error) {
@@ -60,9 +59,25 @@ export function ListaAgendamentos() {
           />
         </div>
       </div>
-
       {loading ? (
-        <p className="text-center text-zinc-500 py-8 font-medium animate-pulse">Buscando agendamentos...</p>
+        <div className="flex flex-col gap-4">
+          {[1, 2].map(i => (
+            <div key={i} className="bg-white rounded-xl shadow-sm border border-zinc-200 overflow-hidden">
+              <div className="bg-zinc-100 border-b border-zinc-200 p-3 px-4">
+                <Skeleton className="h-5 w-32" />
+              </div>
+              <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[1, 2].map(j => (
+                  <div key={j} className="flex flex-col gap-3 p-4 border border-zinc-200 rounded-lg">
+                    <Skeleton className="h-5 w-40" />
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-8 w-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
       ) : horariosOrdenados.length === 0 ? (
         <p className="text-center text-zinc-500 py-8 bg-white rounded-xl shadow-sm border border-zinc-200">
           Nenhum agendamento encontrado para esta data.
@@ -74,7 +89,6 @@ export function ListaAgendamentos() {
               <div className="bg-zinc-100 border-b border-zinc-200 p-3 px-4">
                 <h3 className="font-bold text-zinc-700">Horário: {hora}</h3>
               </div>
-              
               <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {agendamentosAgrupados[hora].map(agendamento => (
                   <Card key={agendamento.id} className="shadow-none border-zinc-200 bg-zinc-50/50">
@@ -97,11 +111,10 @@ export function ListaAgendamentos() {
                           </p>
                         )}
                       </div>
-                      
                       {agendamento.status !== 'Concluído' && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           className="mt-2 w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
                           onClick={() => abrirModalConclusao(agendamento.id)}
                         >
@@ -116,7 +129,6 @@ export function ListaAgendamentos() {
           ))}
         </div>
       )}
-
       <Dialog open={modalAberto} onOpenChange={setModalAberto}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -125,17 +137,15 @@ export function ListaAgendamentos() {
               Informe a conclusão do atendimento para finalizar.
             </DialogDescription>
           </DialogHeader>
-          
           <div className="flex flex-col gap-3 py-4">
             <Label htmlFor="conclusao">Conclusão</Label>
-            <Input 
-              id="conclusao" 
-              placeholder="Ex: Vacina aplicada com sucesso" 
+            <Input
+              id="conclusao"
+              placeholder="Ex: Vacina aplicada com sucesso"
               value={conclusaoTexto}
               onChange={(e) => setConclusaoTexto(e.target.value)}
             />
           </div>
-
           <DialogFooter>
             <Button variant="outline" onClick={() => setModalAberto(false)}>Cancelar</Button>
             <Button onClick={handleConcluirAtendimento} disabled={!conclusaoTexto.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
