@@ -15,13 +15,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { agendamentoSchema, type AgendamentoFormData } from '../schemas/agendamentoSchema';
 import { pacienteService } from '../../../services/paciente.service';
 import { agendamentoService } from '../../../services/agendamento.service';
-import { useModalStore } from '../../../store/modalStore';
+import { modalService } from '../../../services/modal.service';
+
 import { useAgendamentoStore } from '../../../store/agendamentoStore';
+import { useModalStore } from '@/store/modalStore';
 
 const HORARIOS_PERMITIDOS = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
 export function FormularioAgendamento() {
-  const { abrirModal } = useModalStore();
   const { incrementarTotal } = useAgendamentoStore();
   const [erroApi, setErroApi] = useState<string | null>(null);
 
@@ -49,7 +50,8 @@ export function FormularioAgendamento() {
         await agendamentoService.inserir(agendamentoData);
 
         incrementarTotal();
-        abrirModal(`Agendamento de ${data.nome} realizado com sucesso para as ${data.horaAgendamento}!`);
+        modalService.abrirSucesso(`Agendamento de ${data.nome} realizado com sucesso para as ${data.horaAgendamento}!`);
+
         reset(); 
       }
     } catch (error: unknown) {

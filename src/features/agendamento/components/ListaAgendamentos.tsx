@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import DatePicker from 'react-datepicker';
-import { format } from 'date-fns';
 import { agendamentoService } from '../../../services/agendamento.service';
 import { type Agendamento } from '../../../types/agendamento.types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,43 +8,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import 'react-datepicker/dist/react-datepicker.css';
-
+import { useAgendamentos } from '../hooks/useAgendamento';
 export function ListaAgendamentos() {
   const [dataConsulta, setDataConsulta] = useState<Date>(new Date());
-  const [agendamentos, setAgendamentos] = useState<Agendamento[]>([]);
-  const [loading, setLoading] = useState(false);
   const [modalAberto, setModalAberto] = useState(false);
   const [agendamentoSelecionado, setAgendamentoSelecionado] = useState<number | null>(null);
   const [conclusaoTexto, setConclusaoTexto] = useState('');
-
-  const buscarAgendamentos = async (data: Date) => {
-    setLoading(true);
-    try {
-      const dataFormatada = format(data, 'yyyy-MM-dd');
-      const dados = await agendamentoService.listarPorData(dataFormatada);
-      setAgendamentos(dados);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    buscarAgendamentos(dataConsulta);
-  }, [dataConsulta]);
-
+  const { agendamentos, loading, recarregar } = useAgendamentos(dataConsulta);
   const agendamentosAgrupados: Record<string, Agendamento[]> = {};
-  agendamentos.forEach(ag => {
+  agendamentos.forEach((ag: Agendamento) => {
     const hora = ag.horaAgendamento.substring(0, 5);
     if (!agendamentosAgrupados[hora]) {
       agendamentosAgrupados[hora] = [];
     }
     agendamentosAgrupados[hora].push(ag);
   });
-
   const horariosOrdenados = Object.keys(agendamentosAgrupados).sort();
-
   const handleConcluirAtendimento = async () => {
     if (!agendamentoSelecionado) return;
     
@@ -56,18 +34,16 @@ export function ListaAgendamentos() {
       });
       
       setModalAberto(false);
-      buscarAgendamentos(dataConsulta);
+      recarregar();
     } catch (error) {
       console.error('Erro ao concluir', error);
     }
   };
-
   const abrirModalConclusao = (id: number) => {
     setAgendamentoSelecionado(id);
     setConclusaoTexto('');
     setModalAberto(true);
   };
-
   return (
     <div className="w-full max-w-4xl flex flex-col gap-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-5 rounded-xl shadow-sm border border-zinc-200">
