@@ -94,7 +94,7 @@ export function ListaAgendamentos() {
                   <Card key={agendamento.id} className="shadow-none border-zinc-200 bg-zinc-50/50">
                     <CardHeader className="p-4 pb-2">
                       <CardTitle className="text-lg text-blue-700">
-                        {agendamento.paciente?.nome || 'Paciente'}
+                        {agendamento.paciente?.nome ? `${agendamento.paciente.nome} (${agendamento.paciente.id})` : 'Paciente'}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-4 pt-0 flex flex-col gap-3">
