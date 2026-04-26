@@ -1,10 +1,15 @@
 import { api } from './api';
-import type { Agendamento, AgendamentoDTO, AtualizarStatusDTO, RespostaPadrao } from '../types/agendamento.types';
+import type { Agendamento, AgendamentoDTO, AtualizarStatusDTO, RespostaPadrao, AgendamentoCompletoDTO } from '../types/agendamento.types';
 
 export const agendamentoService = {
   listarPorData: async (data: string) => {
     const response = await api.get<RespostaPadrao<Agendamento[]>>(`/Agendamento/ListarPorData/${data}`);
     return response.data.dados || [];
+  },
+
+  inserirCompleto: async (dados: AgendamentoCompletoDTO) => {
+    const response = await api.post<RespostaPadrao<Agendamento>>('/Agendamento/InserirCompleto', dados);
+    return response.data.dados;
   },
 
   inserir: async (agendamento: AgendamentoDTO) => {

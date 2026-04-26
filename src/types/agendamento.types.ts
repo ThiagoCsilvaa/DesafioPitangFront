@@ -26,3 +26,10 @@ export interface RespostaPadrao<T>{
 mensagem: string;
 dados?: T;
 }
+
+export interface AgendamentoCompletoDTO {
+  nome: string;
+  dataNascimento: string; 
+  dataAgendamento: string; 
+  horaAgendamento: string;
+}

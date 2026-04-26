@@ -18,9 +18,8 @@ import { agendamentoService } from '../../../services/agendamento.service';
 import { modalService } from '../../../services/modal.service';
 
 import { useAgendamentoStore } from '../../../store/agendamentoStore';
-import { useModalStore } from '@/store/modalStore';
 
-const HORARIOS_PERMITIDOS = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+const HORARIOS_PERMITIDOS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
 
 export function FormularioAgendamento() {
   const { incrementarTotal } = useAgendamentoStore();
@@ -30,33 +29,23 @@ export function FormularioAgendamento() {
     resolver: zodResolver(agendamentoSchema),
   });
 
-  const onSubmit = async (data: AgendamentoFormData) => {
+ const onSubmit = async (data: AgendamentoFormData) => {
     setErroApi(null);
     try {
-      // Cadastra Paciente
-      const pacienteData = {
+      const payload = {
         nome: data.nome,
         dataNascimento: format(data.dataNascimento, "yyyy-MM-dd'T'00:00:00"),
+        dataAgendamento: format(data.dataAgendamento, "yyyy-MM-dd'T'00:00:00"),
+        horaAgendamento: `${data.horaAgendamento}:00`,
       };
-      const pacienteSalvo = await pacienteService.inserir(pacienteData);
-
-      // Cadastra Agendamento
-      if (pacienteSalvo && pacienteSalvo.id) {
-        const agendamentoData = {
-          pacienteId: pacienteSalvo.id,
-          dataAgendamento: format(data.dataAgendamento, "yyyy-MM-dd'T'00:00:00"),
-          horaAgendamento: `${data.horaAgendamento}:00`,
-        };
-        await agendamentoService.inserir(agendamentoData);
-
-        incrementarTotal();
-        modalService.abrirSucesso(`Agendamento de ${data.nome} realizado com sucesso para as ${data.horaAgendamento}!`);
-
-        reset(); 
-      }
+      await agendamentoService.inserirCompleto(payload);
+      incrementarTotal();
+      modalService.abrirSucesso(`Agendamento de ${data.nome} realizado com sucesso para as ${data.horaAgendamento}!`);
+      reset(); 
+      
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
-        setErroApi(error.response?.data?.erro || 'Ocorreu um erro ao realizar o agendamento.');
+        setErroApi(error.response?.data?.mensagem || error.response?.data?.erro || 'Ocorreu um erro ao realizar o agendamento.');
       } else {
         setErroApi('Ocorreu um erro inesperado.');
       }
